@@ -7,6 +7,7 @@ import { useOffer } from "$store/sdk/useOffer.ts";
 import type { ProductListingPage } from "apps/commerce/types.ts";
 import { mapProductToAnalyticsItem } from "apps/commerce/utils/productToAnalyticsItem.ts";
 import ProductGallery, { Columns } from "../product/ProductGallery.tsx";
+import { AppContext } from "apps/vtex/mod.ts";
 
 export interface Layout {
   /**
@@ -98,7 +99,7 @@ function Result({
             item_list_id: "",
             items: page.products?.map((product) =>
               mapProductToAnalyticsItem({
-                ...(useOffer(product.offers)),
+                ...useOffer(product.offers),
                 product,
                 breadcrumbList: page.breadcrumb,
               })
@@ -117,5 +118,12 @@ function SearchResult({ page, ...props }: Props) {
 
   return <Result {...props} page={page} />;
 }
+
+export const loader = (props: Props, req: Request, ctx: AppContext) => {
+  if (!props.page || !props.page.products.length) {
+    ctx.response.status = 404;
+  }
+  return props;
+};
 
 export default SearchResult;
